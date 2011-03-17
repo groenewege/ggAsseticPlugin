@@ -30,12 +30,15 @@ class ggAsseticActions extends sfActions
       
       $mtime = $this->getResponse()->getDate($am->get('combined')->getLastModified());
       
+      $this->getResponse()->addCacheControlHttpHeader('private=True');
+      $this->getResponse()->setHttpHeader('Last-Modified', $mtime);
+      
       if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $mtime == $_SERVER['HTTP_IF_MODIFIED_SINCE']) { 
-        header('HTTP/1.0 304 Not Modified');
-        exit();
+        $this->getResponse()->setHeaderOnly(true);
+        $this->getResponse()->setStatusCode(304);
+        $this->getResponse()->send();
       }
       
-      $this->getResponse()->setHttpHeader('Last-Modified', $mtime);
       $this->getResponse()->setHttpHeader('Content-Type', 'application/javascript');
       return $this->renderText($am->get('combined')->dump());
     }
@@ -65,12 +68,15 @@ class ggAsseticActions extends sfActions
       
       $mtime = $this->getResponse()->getDate($am->get('combined')->getLastModified());
       
+      $this->getResponse()->addCacheControlHttpHeader('private=True');
+      $this->getResponse()->setHttpHeader('Last-Modified', $mtime);
+      
       if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $mtime == $_SERVER['HTTP_IF_MODIFIED_SINCE']) { 
-        header('HTTP/1.0 304 Not Modified');
-        exit();
+        $this->getResponse()->setHeaderOnly(true);
+        $this->getResponse()->setStatusCode(304);
+        $this->getResponse()->send();
       }
       
-      $this->getResponse()->setHttpHeader('Last-Modified', $mtime);
       $this->getResponse()->setHttpHeader('Content-Type', 'text/css');
       return $this->renderText($am->get('combined')->dump());
     }
