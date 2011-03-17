@@ -34,10 +34,11 @@ class asseticBuildTask extends sfBaseTask
     $this->name                 = 'build';
     $this->briefDescription     = 'Recompiles javascript / css files';
     $this->detailedDescription  = <<<EOF
-The [assetic:build|INFO] task combines javascript files and recompiles LESS styles into a combined CSS file and minifies them. type options = all/css/javascript
+The [assetic:build|INFO] task combines javascript and css files and minifies them. 
+type options = all/css/javascript
 Call it with:
 
-  [php symfony asstic:build frontend --type=all|INFO]
+  [php symfony assetic:build frontend --type=all|INFO]
 EOF;
   }
 
@@ -57,7 +58,6 @@ EOF;
   public function combineJavascript($arguments = array(), $options = array())
   {
     $config = sfConfig::get('app_gg_assetic_javascript');
-    sfConfig::set('sf_use_database', false);
     
     $context = sfContext::createInstance($this->configuration);
     $this->configuration->loadHelpers('Partial');
@@ -97,6 +97,9 @@ EOF;
   public function combineStylesheet($arguments = array(), $options = array())
   {
     $config = sfConfig::get('app_gg_assetic_css');
+    
+    $context = sfContext::createInstance($this->configuration);
+    $this->configuration->loadHelpers('Partial');
         
     $am = new Assetic\AssetManager();
     $references = array();
@@ -109,6 +112,12 @@ EOF;
         $file_ref = str_replace('.', '_', $file); 
       	$am->set($file_ref, new Assetic\Asset\FileAsset(sfConfig::get('sf_web_dir').'/css/'.$file));
       	$references[] = new Assetic\Asset\AssetReference($am, $file_ref);
+      }
+      
+      foreach ($style['partials'] as $partial) { 
+        $partial_ref = str_replace('/', '_', $partial); 
+      	$am->set($partial_ref, new Assetic\Asset\StringAsset(get_partial($partial, array('routing' => $this->getProductionRouting($arguments['application'])))));
+        $references[] = new Assetic\Asset\AssetReference($am, $partial_ref);
       }
       
       $am->set('combined', new Assetic\Asset\AssetCollection($references, $filters));

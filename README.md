@@ -63,11 +63,10 @@ Use the gg_use_stylesheet function to include the collection in a view or layout
     <?php gg_use_stylesheet('main'); ?>
     <?php gg_use_javascript('main'); ?>
 
-If the configuration does not use a version number (see later), this function will add a script tag or css link to the ggAssetic module using the following route:
+If the configuration does not use a version number (see later), this function will add a script tag or css link to the ggAssetic module. Example:
     
     <script type="text/javascript" src="/frontend_dev.php/js/main.js"></script>
     <link rel="stylesheet" type="text/css" media="all" href="/frontend_dev.php/css/main.css" />
-
 
 ### Configuring the asset collection ###
 
@@ -115,7 +114,7 @@ When visiting *frontend_dev.php/js/main.js* (dev environment) the output is :
     console.info("frontend js");
     console.info("partial with link : /frontend_dev.php/contact")
 
-When visiting */js/main.js* (production environment) the output is :
+When visiting */js/main.js* (prod environment) the output is :
     
     console.info("frontend js");
     console.info("partial with link : /contact")
@@ -123,4 +122,70 @@ When visiting */js/main.js* (production environment) the output is :
 **Do not forget to clear the symfony cache and the browser cache when running into problems**
 
 
+## Combining and compressing assets with the ggAssetic task ##
 
+You use the gg_use_stylesheet function in your view or layout file to include an asset collection.
+You clarify in your app.yml configuration which files and partials to include in this bundle and you give a version number to the file.
+The ggAssetic task let's you create a new versioned file that combines and minifies the assets in a new file. This allows you to use a far future Expires header for your css and javascript assets.
+
+**This method is best used in your production environment**
+
+### including an asset collection ###
+
+Choose a name for your asset collection.
+Use the gg_use_stylesheet function to include the collection in a view or layout file.
+
+    <?php gg_use_stylesheet('main'); ?>
+    <?php gg_use_javascript('main'); ?>
+
+If the configuration uses a version number (see later), this function will add a script tag or css link to the generated files. Example:
+    
+    <script type="text/javascript" src="/js/main.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/main.1.min.css" />
+
+### Configuring the asset collection ###
+
+In your app.yml file you specify the files and partials that have to be included in your collection.
+The following configuration file specifies that in the production environment the main javascript bundle must contain the backend.js file ande the contents of the general/javascipt partial.
+The main css bundle must contain two files and one partial.
+
+This configuration file also sets the version number for each collection to 1 and clarifies the path to the YUI compressor.
+
+    all:
+      gg_assetic:
+        yui_path: '/usr/local/bin/yuicompressor-2.4.2.jar'
+        javascript:
+          main:
+            files:
+              - frontend.js
+            partials:
+              - general/javascript
+            version: 1
+        css:
+          main:
+            files:
+              - reset.css
+              - frontend.css
+            partials:
+              - general/css
+            version: 1
+
+### Using the ggAssetic task ###
+
+This plugin provides a CLI task to combine and compile your asset collections.
+When your use the task a new file will be generated in the sf_web_dir/js or sf_web_dir/css directory combining the files and partials and minifying them. A version number is included into the filename.
+
+**Make sure your css and js directories are writable.**
+
+To combine and minify all the assets for the frontend application, run:
+    
+    symfony assetic:build frontend
+    symfony assetic:build frontend --type=all
+    
+To combine and minify only the css files for the frontend application, run:
+    
+    symfony assetic:build frontend --type=css
+
+To combine and minify only the javascript files for the frontend application, run:
+    
+    symfony assetic:build frontend --type=javascript
