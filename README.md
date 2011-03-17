@@ -189,3 +189,8 @@ To combine and minify only the css files for the frontend application, run:
 To combine and minify only the javascript files for the frontend application, run:
     
     symfony assetic:build frontend --type=javascript
+
+
+## Credits ##
+
+[Assetic Library by Kris Wallsmith](https://github.com/kriswallsmith/assetic)
