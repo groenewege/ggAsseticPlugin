@@ -11,14 +11,6 @@
 use_helper('Asset');
 
 /**
- * Prints <link> tag for the jquery library.
- */
-function use_jquery()
-{
-  use_javascript(sfConfig::get('app_gg_assetic_jquery'));
-}
-
-/**
  * Prints <link> tag for a javascript file.
  */
 function gg_use_javascript($js)
