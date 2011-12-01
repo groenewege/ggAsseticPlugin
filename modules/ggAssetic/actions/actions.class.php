@@ -75,19 +75,24 @@ class ggAsseticActions extends sfActions
     $am = new Assetic\AssetManager();
     $references = array();
     
-    foreach ($config[$name]['files'] as $file) {
-      $file_ref = str_replace('.', '_', $file); 
-    	$am->set($file_ref, new Assetic\Asset\FileAsset(sfConfig::get('sf_web_dir').'/'.$dir.'/'.$file));
-    	$references[] = new Assetic\Asset\AssetReference($am, $file_ref);
+    if (isset($config[$name]['files'])) {
+      foreach ($config[$name]['files'] as $file) {
+        $file_ref = str_replace('.', '_', $file); 
+        $am->set($file_ref, new Assetic\Asset\FileAsset(sfConfig::get('sf_web_dir').'/'.$dir.'/'.$file));
+        $references[] = new Assetic\Asset\AssetReference($am, $file_ref);
+      }
     }
 
-    foreach ($config[$name]['partials'] as $partial) { 
-      list($action, $template) = explode('/', $partial);
-      $partial_ref = str_replace('/', '_', $partial); 
-    	$am->set($partial_ref, new Assetic\Asset\StringAsset($this->getPartial($partial, array('routing' => $this->getContext()->getRouting()))));
-      $am->get($partial_ref)->setLastModified(filemtime(sfConfig::get('sf_app_module_dir').'/'.$action.'/templates/_'.$template.'.php'));
-      $references[] = new Assetic\Asset\AssetReference($am, $partial_ref);
+    if (isset($config[$name]['partials'])) {
+    	foreach ($config[$name]['partials'] as $partial) { 
+        list($action, $template) = explode('/', $partial);
+        $partial_ref = str_replace('/', '_', $partial); 
+        $am->set($partial_ref, new Assetic\Asset\StringAsset($this->getPartial($partial, array('routing' => $this->getContext()->getRouting()))));
+        $am->get($partial_ref)->setLastModified(filemtime(sfConfig::get('sf_app_module_dir').'/'.$action.'/templates/_'.$template.'.php'));
+        $references[] = new Assetic\Asset\AssetReference($am, $partial_ref);
+      }
     }
+    
     
     $am->set('combined', new Assetic\Asset\AssetCollection($references));
     
